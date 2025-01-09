@@ -1,7 +1,8 @@
-const options = require("./options");
-const express = require("express");
+require("dotenv").config();
+require("./Tools/webscraper");
 
-const { PORT } = require("./options");
+const express = require("express");
+const mongoose = require("mongoose");
 
 const app = express();
 
@@ -10,5 +11,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(options.PORT, () => {
-  console.log(`Serwer działa na http://localhost:${PORT}`);
+  console.log(`Serwer działa na http://localhost:${process.env.PORT}`);
 });
