@@ -2,28 +2,78 @@ const axios = require("axios");
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 const Order = require("../Models/Order");
-const Config = require("../Models/Config");
-
-const options = {
-  method: "POST",
-  headers: {
-    accept: "application/json",
-    "content-type": "application/json",
-    "X-API-KEY": process.env.X_API_KEY,
-  },
-  body: JSON.stringify({ params: { ordersStatuses: ["finished"] } }),
-};
+const getOrCreateRecord = require("../Models/Config");
+const dayjs = require("dayjs");
 
 const address = `https://${process.env.API_PANEL}/api/admin/v4/orders/orders/get`;
 
-async function fetchData() {
+function getOptions(last_update, count) {
+  return {
+    method: "POST",
+    headers: {
+      accept: "application/json",
+      "content-type": "application/json",
+      "X-API-KEY": process.env.X_API_KEY,
+    },
+    body: JSON.stringify({
+      params: {
+        ordersStatuses: ["finished"],
+        ordersRange: {
+          ordersDateRange: {
+            ordersDateType: "modified",
+            ordersDateBegin: last_update,
+          },
+        },
+        resultsPage: count,
+      },
+    }),
+  };
+}
+
+async function downloadData() {
   try {
-    const response = await fetch(address, options);
-    const data = await response.json();
-    handle_data(data);
-    return data;
+    const record = await getOrCreateRecord();
+    fetchData(record);
+  } catch (error) {
+    console.error("Błąd podczas pobierania rekordu:", error);
+  }
+}
+
+function addMinute(dateString) {
+  return dayjs(dateString).add(1, "minute").format("YYYY-MM-DD HH:mm:ss");
+}
+
+async function fetchData(record) {
+  try {
+    let page = 0;
+    let curr_last_date = record.last_update;
+    let new_last_date;
+    while (true) {
+      options = getOptions(record.last_update, page);
+      const response = await fetch(address, options);
+      const data = await response.json();
+      if ("errors" in data && data.errors.faultCode === 2) {
+        if (curr_last_date != record.last_update) {
+          record.last_update = addMinute(curr_last_date);
+          record.save();
+        }
+        return;
+      }
+      data.Results.sort(
+        (a, b) =>
+          new Date(a.orderDetails.orderChangeDate) -
+          new Date(b.orderDetails.orderChangeDate)
+      );
+      last_index = data.Results.length - 1;
+      new_last_date = data.Results[last_index].orderDetails.orderChangeDate;
+      if (new Date(new_last_date) > new Date(curr_last_date)) {
+        curr_last_date = new_last_date;
+      }
+      handle_data(data);
+      page++;
+    }
   } catch (err) {
-    console.error("Błąd:", err);
+    console.error("Błąd:");
   }
 }
 
@@ -61,17 +111,15 @@ function handle_data(data) {
     formated_order.orderWorth = calc_full_cost(
       order.orderDetails.payments.orderCurrency
     );
-
     final_result.push(formated_order);
   });
-  console.log(final_result);
   Order.insertMany(final_result)
-    .then((result) => {
-      console.log("Wstawiono zamówienie", result);
+    .then(() => {
+      console.log("Wstawiono zamówienie");
     })
     .catch((err) => {
       console.error("Błąd wstawiania zamówienia:", err);
     });
 }
 
-module.exports = fetchData; // Eksportowanie funkcji
+module.exports = downloadData;

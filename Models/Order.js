@@ -16,7 +16,7 @@ const orderSchema = new mongoose.Schema({
     type: Number,
     required: true,
     validate: {
-      validator: (value) => Number.isInteger(value * 100), // Walidacja liczby z dokładnością do dwóch miejsc po przecinku
+      validator: (value) => Number.isInteger(Math.round(value * 100)),
       message: "Cena może mieć maksymalnie dwie liczby po przecinku",
     },
   },
