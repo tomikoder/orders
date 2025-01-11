@@ -1,5 +1,5 @@
 const Order = require("../Models/Order");
-const getOrCreateRecord = require("../Models/Config");
+const getOrCreateConfig = require("../Models/Config");
 const dayjs = require("dayjs");
 
 const address = `https://${process.env.API_PANEL}/api/admin/v4/orders/orders/get`;
@@ -29,30 +29,30 @@ function getOptions(lastUpdate, count) {
 
 async function downloadData() {
   try {
-    const record = await getOrCreateRecord();
-    fetchData(record);
+    const config = await getOrCreateConfig();
+    fetchData(config);
   } catch (error) {
     console.error("Błąd podczas pobierania rekordu:", error);
   }
 }
 
-function addMinute(dateString) {
+function addSecond(dateString) {
   return dayjs(dateString).add(1, "second").format("YYYY-MM-DD HH:mm:ss");
 }
 
-async function fetchData(record) {
+async function fetchData(config) {
   try {
     let page = 0;
-    let currLastDate = record.lastUpdate;
+    let currLastDate = config.lastUpdate;
     let newLastDate;
     while (true) {
-      options = getOptions(record.lastUpdate, page);
+      options = getOptions(config.lastUpdate, page);
       const response = await fetch(address, options);
       const data = await response.json();
       if ("errors" in data && data.errors.faultCode === 2) {
-        if (currLastDate != record.lastUpdate) {
-          record.lastUpdate = addMinute(currLastDate);
-          record.save();
+        if (currLastDate != config.lastUpdate) {
+          config.lastUpdate = addSecond(currLastDate);
+          config.save();
         }
         return;
       }
@@ -90,7 +90,7 @@ function calcFullCost(orderCurrency) {
 function handle_data(data) {
   let finalResult = [];
   data.Results.forEach((order) => {
-    formatedOrder = [];
+    formatedOrder = {};
     formatedOrder.orderID = order.orderId;
     products = [];
     if (

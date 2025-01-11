@@ -4,7 +4,7 @@ const { Parser } = require("json2csv");
 function formatToCSV(orders) {
   const flatOrders = [];
   orders.forEach((order) => {
-    flatOrder = [];
+    flatOrder = {};
     flatOrder.id = order.orderID;
     flatOrder.orderWorth = order.orderWorth;
     formatedProducts = [];
@@ -19,7 +19,6 @@ function formatToCSV(orders) {
 }
 
 function isValidPrice(price) {
-  if (!price) return false;
   if (isNaN(price)) return false;
   if (Number(price) < 0) return false;
   const regex = /^\d+(\.\d{1,2})?$/; // Wyrażenie regularne: liczba z maks. 2 miejscami po przecinku
@@ -62,8 +61,7 @@ async function getData(req, res) {
   const maxWorth = req.query.maxWorth;
   const query = validateInput(minWorth, maxWorth);
   if (!query) {
-    res.send("Invalid input.");
-    return;
+    return res.status(405).json({ error: "Błędne query parameters." });
   }
 
   let orders;

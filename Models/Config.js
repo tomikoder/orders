@@ -12,7 +12,7 @@ const productSchema =
 const Config =
   mongoose.models.Config || mongoose.model("Config", productSchema);
 
-async function getOrCreateRecord() {
+async function getOrCreateConfig() {
   let record = await Config.findOne();
 
   if (!record) {
@@ -22,4 +22,4 @@ async function getOrCreateRecord() {
   return record;
 }
 
-module.exports = getOrCreateRecord;
+module.exports = getOrCreateConfig;
