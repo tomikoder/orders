@@ -1,13 +1,10 @@
-const axios = require("axios");
-const cron = require("node-cron");
-const mongoose = require("mongoose");
 const Order = require("../Models/Order");
 const getOrCreateRecord = require("../Models/Config");
 const dayjs = require("dayjs");
 
 const address = `https://${process.env.API_PANEL}/api/admin/v4/orders/orders/get`;
 
-function getOptions(last_update, count) {
+function getOptions(lastUpdate, count) {
   return {
     method: "POST",
     headers: {
@@ -21,7 +18,7 @@ function getOptions(last_update, count) {
         ordersRange: {
           ordersDateRange: {
             ordersDateType: "modified",
-            ordersDateBegin: last_update,
+            ordersDateBegin: lastUpdate,
           },
         },
         resultsPage: count,
@@ -40,21 +37,21 @@ async function downloadData() {
 }
 
 function addMinute(dateString) {
-  return dayjs(dateString).add(1, "minute").format("YYYY-MM-DD HH:mm:ss");
+  return dayjs(dateString).add(1, "second").format("YYYY-MM-DD HH:mm:ss");
 }
 
 async function fetchData(record) {
   try {
     let page = 0;
-    let curr_last_date = record.last_update;
-    let new_last_date;
+    let currLastDate = record.lastUpdate;
+    let newLastDate;
     while (true) {
-      options = getOptions(record.last_update, page);
+      options = getOptions(record.lastUpdate, page);
       const response = await fetch(address, options);
       const data = await response.json();
       if ("errors" in data && data.errors.faultCode === 2) {
-        if (curr_last_date != record.last_update) {
-          record.last_update = addMinute(curr_last_date);
+        if (currLastDate != record.lastUpdate) {
+          record.lastUpdate = addMinute(currLastDate);
           record.save();
         }
         return;
@@ -64,10 +61,10 @@ async function fetchData(record) {
           new Date(a.orderDetails.orderChangeDate) -
           new Date(b.orderDetails.orderChangeDate)
       );
-      last_index = data.Results.length - 1;
-      new_last_date = data.Results[last_index].orderDetails.orderChangeDate;
-      if (new Date(new_last_date) > new Date(curr_last_date)) {
-        curr_last_date = new_last_date;
+      lastIndex = data.Results.length - 1;
+      newLastDate = data.Results[lastIndex].orderDetails.orderChangeDate;
+      if (new Date(newLastDate) > new Date(currLastDate)) {
+        currLastDate = newLastDate;
       }
       handle_data(data);
       page++;
@@ -77,7 +74,7 @@ async function fetchData(record) {
   }
 }
 
-function calc_full_cost(orderCurrency) {
+function calcFullCost(orderCurrency) {
   let orderCosts = [
     orderCurrency.orderProductsCost,
     orderCurrency.orderDeliveryCost,
@@ -91,10 +88,10 @@ function calc_full_cost(orderCurrency) {
 }
 
 function handle_data(data) {
-  let final_result = [];
+  let finalResult = [];
   data.Results.forEach((order) => {
-    formated_order = [];
-    formated_order.orderID = order.orderId;
+    formatedOrder = [];
+    formatedOrder.orderID = order.orderId;
     products = [];
     if (
       "productsResults" in order.orderDetails &&
@@ -107,13 +104,13 @@ function handle_data(data) {
         });
       });
     }
-    formated_order.products = products;
-    formated_order.orderWorth = calc_full_cost(
+    formatedOrder.products = products;
+    formatedOrder.orderWorth = calcFullCost(
       order.orderDetails.payments.orderCurrency
     );
-    final_result.push(formated_order);
+    finalResult.push(formatedOrder);
   });
-  Order.insertMany(final_result)
+  Order.insertMany(finalResult)
     .then(() => {
       console.log("Wstawiono zamówienie");
     })
