@@ -1,5 +1,5 @@
-const Order = require("../Models/Order");
-const getOrCreateConfig = require("../Models/Config");
+const Order = require("../Models/App/Order");
+const getOrCreateConfig = require("../Models/App/Config");
 const dayjs = require("dayjs");
 
 const address = `https://${process.env.API_PANEL}/api/admin/v4/orders/orders/get`;

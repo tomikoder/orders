@@ -1,4 +1,4 @@
-const Order = require("../../Models/Order");
+const Order = require("../../Models/App/Order");
 const { Parser } = require("json2csv");
 
 function formatPrice(price) {
@@ -67,7 +67,7 @@ async function getData(req, res) {
     const query = getQuery(minWorth, maxWorth);
 
     if (!query) {
-      return res.status(400).json({ error: "Invalid query parameters." });
+      return res.status(400).json({ error: "Niepoprawne parametry query." });
     }
 
     const orders = await Order.find(
@@ -81,7 +81,7 @@ async function getData(req, res) {
     res.send(csv);
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(500).json({ error: "Internal server error." });
+    res.status(500).json({ error: "Błąd serwera." });
   }
 }
 

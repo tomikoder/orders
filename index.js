@@ -7,7 +7,7 @@ const cron = require("node-cron");
 const listHandler = require("./Handlers/App/listHandler.js");
 const getHandler = require("./Handlers/App/getHandler.js");
 const registerHandler = require("./Handlers/Auth/registerHandler.js");
-const { validate } = require("./Middleware/Auth/basicAuthMiddleware.js");
+const { validate } = require("./Middlewares/Auth/basicAuthMiddleware.js");
 const bodyParser = require("body-parser");
 
 const app = express();

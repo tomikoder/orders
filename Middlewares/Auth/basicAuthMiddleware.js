@@ -1,4 +1,4 @@
-const User = require("../../Models/User");
+const User = require("../../Models/Auth/User");
 const bcrypt = require("bcrypt");
 
 async function validate(req, res, next) {
@@ -6,7 +6,7 @@ async function validate(req, res, next) {
 
   if (!authHeader) {
     res.setHeader("WWW-Authenticate", 'Basic realm="Restricted Area"');
-    return res.status(401).json({ message: "Brak dostępu" });
+    return res.status(401).json({ message: "Brak dostępu." });
   }
 
   // Parsowanie headera Authorization
@@ -28,7 +28,7 @@ async function validate(req, res, next) {
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) {
     res.setHeader("WWW-Authenticate", 'Basic realm="Restricted Area"');
-    return res.status(401).json({ error: "Nie poprawne hasło." });
+    return res.status(401).json({ error: "Niepoprawne hasło." });
   } else {
     return next();
   }
