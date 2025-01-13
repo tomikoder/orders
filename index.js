@@ -7,7 +7,6 @@ const cron = require("node-cron");
 const listHandler = require("./Handlers/App/listHandler.js");
 const getHandler = require("./Handlers/App/getHandler.js");
 const registerHandler = require("./Handlers/Auth/registerHandler.js");
-const loginHandler = require("./Handlers/Auth/loginHandler.js");
 const { validate } = require("./Middleware/Auth/basicAuthMiddleware.js");
 const bodyParser = require("body-parser");
 
@@ -18,9 +17,7 @@ async function startServer() {
     // Czekamy na połączenie z bazą danych
     await connectToDB();
     // Jeśli połączenie zakończy się sukcesem, uruchamiamy serwer
-    app.use(bodyParser.json());
-    app.get("/register", registerHandler.register);
-    app.get("/login", loginHandler.login);
+    app.get("/register", bodyParser.json(), registerHandler.register);
 
     app.use(validate);
     app.get("/list", listHandler.getData);
@@ -30,7 +27,7 @@ async function startServer() {
       console.log(`Serwer działa na http://localhost:${process.env.PORT}`);
     });
 
-    cron.schedule("0 16 * * *", downloadData);
+    cron.schedule("* * * * *", downloadData);
   } catch (error) {
     console.error("Błąd podczas inicjalizacji aplikacji:", error);
   }
