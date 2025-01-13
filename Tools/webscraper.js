@@ -90,7 +90,7 @@ function calcFullCost(orderCurrency) {
 function handle_data(data) {
   let finalResult = [];
   data.Results.forEach((order) => {
-    formatedOrder = {};
+    let formatedOrder = {};
     formatedOrder.orderID = order.orderId;
     products = [];
     if (
