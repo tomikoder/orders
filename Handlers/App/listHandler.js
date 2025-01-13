@@ -1,4 +1,4 @@
-const Order = require("../Models/Order");
+const Order = require("../../Models/Order");
 const { Parser } = require("json2csv");
 
 function formatPrice(price) {

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Order = require("../Models/Order");
+const Order = require("../../Models/Order");
 
 async function getData(req, res) {
   const id = req.params.id;
