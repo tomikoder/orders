@@ -1,0 +1,110 @@
+{
+  "info": {
+    "_postman_id": "c154dcb4-913b-4315-b569-2d0f90a95385",
+    "name": "Zadanie",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29683026"
+  },
+  "item": [
+    {
+      "name": "getHandler",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "marcin",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "somepass",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:80/get/67850d60909c9ebfa66406a6",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "80",
+          "path": ["get", "67850d60909c9ebfa66406a6"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "listHandler",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            {
+              "key": "username",
+              "value": "marcin",
+              "type": "string"
+            },
+            {
+              "key": "password",
+              "value": "somepass",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:80/list?minWorth=0&maxWorth=100",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "80",
+          "path": ["list"],
+          "query": [
+            {
+              "key": "minWorth",
+              "value": "0"
+            },
+            {
+              "key": "maxWorth",
+              "value": "100"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "registerHandler",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"marcin\",\r\n    \"password\": \"somepass\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:80/register",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "80",
+          "path": ["register"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
